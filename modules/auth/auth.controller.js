@@ -21,5 +21,13 @@ export const login = async (req, res) => {
   if (!ok) throw new Error("Invalid credentials");
 
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+  // 🍪 Set cookie
+  res.cookie("token", token, {
+    httpOnly: true, // JS cannot access
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict", // CSRF protection
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
+
   res.json({ token });
 };
