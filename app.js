@@ -6,7 +6,15 @@ import routes from "./routes/index.js";
 
 const app = express();
 
-app.use(cors("*"));
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://nearby-friends-client.vercel.app",
+    ],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.get("/", (req, res) => res.json({ message: "Server is up and running." }));
