@@ -20,7 +20,7 @@ export const nearbyFriends = async (req, res) => {
   const [lng, lat] = pos.map(Number);
 
   const nearby = await getNearbyUsers(lng, lat, radius);
-  console.log(nearby);
+  // console.log(nearby);
 
   const friends = await Friend.find({ user: req.user.id, status: "accepted" });
   const friendIds = new Set(friends.map((f) => f.friend.toString()));
