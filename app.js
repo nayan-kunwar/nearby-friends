@@ -8,6 +8,7 @@ import { requestIdMiddleware } from "./middlewares/requestId.middleware.js";
 import { requestLogger } from "./middlewares/requestLogger.middleware.js";
 import { errorHandler } from "./middlewares/error.middleware.js";
 import { register } from "./metrics.js";
+import { cpuTask } from "./helpers/cpuIntensiveTask.js";
 
 const app = express();
 
@@ -30,6 +31,32 @@ app.get("/metrics", async (req, res) => {
   res.set("Content-Type", register.contentType);
   res.end(await register.metrics());
 });
+
+app.get("/heavy", (req, res) => {
+  const rand = Math.random();
+
+  // simulate logical failure
+  if (rand < 0.2) {
+    return res.status(500).json({ error: "Random failure" });
+  }
+
+  const start = Date.now();
+  const result = cpuTask(4000);
+  const duration = Date.now() - start;
+
+  // simulate crash AFTER cpu work
+  if (rand < 0.1) {
+    console.error("💥 Simulated crash");
+    process.exit(1);
+  }
+
+  res.json({
+    status: "ok",
+    durationMs: duration,
+    result,
+  });
+});
+
 app.use("/api", routes);
 
 app.use(errorHandler);
